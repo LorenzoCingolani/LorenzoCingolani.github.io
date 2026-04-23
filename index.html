@@ -1,1045 +1,1108 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Lorenzo Cingolani — Senior Trader & Quant</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<style>
-  :root {
-    --black: #0a0a0f;
-    --deep: #0e0e1a;
-    --panel: #13131f;
-    --card: #181826;
-    --border: rgba(255,255,255,0.06);
-    --gold: #d4a843;
-    --gold2: #f0c96a;
-    --teal: #2dd4bf;
-    --blue: #38bdf8;
-    --red: #f87171;
-    --white: #f4f0e8;
-    --muted: #7a7a9a;
-    --accent: #6e56cf;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lorenzo Cingolani | Trader & Execution Strategist</title>
+  <meta name="description" content="Single-page portfolio website for Lorenzo Cingolani — trader, execution strategist, and analytics-driven market professional." />
+  <style>
+    :root{
+      --bg:#0b1020;
+      --bg2:#111936;
+      --card:rgba(255,255,255,0.08);
+      --card-strong:rgba(255,255,255,0.12);
+      --text:#eef2ff;
+      --muted:#b8c0e0;
+      --accent:#6ee7ff;
+      --accent2:#9b8cff;
+      --accent3:#ff7ac6;
+      --accent4:#82ffa1;
+      --line:rgba(255,255,255,0.12);
+      --shadow:0 20px 60px rgba(0,0,0,0.35);
+      --radius:24px;
+      --max:1180px;
+    }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(110,231,255,0.14), transparent 24%),
+        radial-gradient(circle at 85% 15%, rgba(155,140,255,0.18), transparent 22%),
+        radial-gradient(circle at 78% 72%, rgba(255,122,198,0.14), transparent 20%),
+        linear-gradient(135deg, #09101f 0%, #111936 45%, #0d1228 100%);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
 
-  html { scroll-behavior: smooth; }
+    canvas#bgCanvas{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:-1;
+      opacity:.75;
+    }
 
-  body {
-    background: var(--black);
-    color: var(--white);
-    font-family: 'Syne', sans-serif;
-    overflow-x: hidden;
-    cursor: none;
-  }
+    .glow{
+      position:fixed;
+      width:32rem;
+      height:32rem;
+      border-radius:50%;
+      filter:blur(90px);
+      opacity:.14;
+      z-index:-2;
+      pointer-events:none;
+    }
+    .g1{background:var(--accent); top:-8rem; left:-8rem;}
+    .g2{background:var(--accent2); top:20%; right:-10rem;}
+    .g3{background:var(--accent3); bottom:-10rem; left:20%;}
 
-  /* ─── Custom Cursor ─── */
-  #cursor {
-    position: fixed; pointer-events: none; z-index: 9999;
-    width: 12px; height: 12px;
-    background: var(--gold);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
-    mix-blend-mode: exclusion;
-  }
-  #cursor-ring {
-    position: fixed; pointer-events: none; z-index: 9998;
-    width: 40px; height: 40px;
-    border: 1.5px solid rgba(212,168,67,0.5);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: transform 0.15s ease-out, width 0.3s, height 0.3s, opacity 0.3s;
-  }
-  body:has(a:hover) #cursor, body:has(button:hover) #cursor { width: 20px; height: 20px; background: var(--gold2); }
-  body:has(a:hover) #cursor-ring, body:has(button:hover) #cursor-ring { width: 60px; height: 60px; opacity: 0.4; }
+    .container{
+      width:min(calc(100% - 2rem), var(--max));
+      margin-inline:auto;
+    }
 
-  /* ─── Noise Overlay ─── */
-  body::before {
-    content: '';
-    position: fixed; inset: 0; z-index: 1;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none; opacity: 0.35;
-  }
+    .nav{
+      position:sticky;
+      top:0;
+      z-index:50;
+      backdrop-filter: blur(18px);
+      background:rgba(8,12,27,0.58);
+      border-bottom:1px solid rgba(255,255,255,0.08);
+    }
 
-  /* ─── Nav ─── */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 1.2rem 3rem;
-    background: rgba(10,10,15,0.7);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-  }
-  .nav-logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem; letter-spacing: 0.05em;
-    color: var(--gold);
-  }
-  .nav-links { display: flex; gap: 2rem; list-style: none; }
-  .nav-links a {
-    color: var(--muted); text-decoration: none;
-    font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase;
-    transition: color 0.3s;
-  }
-  .nav-links a:hover { color: var(--gold); }
+    .nav-inner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
+      padding:1rem 0;
+    }
 
-  /* ─── Hero ─── */
-  #hero {
-    min-height: 100vh;
-    display: flex; flex-direction: column; justify-content: center;
-    padding: 8rem 3rem 4rem;
-    position: relative; overflow: hidden;
-  }
+    .brand{
+      display:flex;
+      gap:.85rem;
+      align-items:center;
+      text-decoration:none;
+      color:var(--text);
+      font-weight:800;
+      letter-spacing:.02em;
+    }
 
-  .hero-bg-grid {
-    position: absolute; inset: 0; z-index: 0;
-    background-image:
-      linear-gradient(rgba(212,168,67,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(212,168,67,0.04) 1px, transparent 1px);
-    background-size: 60px 60px;
-    animation: gridShift 20s linear infinite;
-  }
-  @keyframes gridShift { from { transform: translateY(0); } to { transform: translateY(60px); } }
+    .brand-badge{
+      width:42px;height:42px;border-radius:14px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));
+      display:grid;place-items:center;
+      color:#081120;font-weight:900;
+      box-shadow:var(--shadow);
+    }
 
-  .hero-glow {
-    position: absolute; top: 20%; right: 5%;
-    width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(110,86,207,0.15) 0%, transparent 70%);
-    animation: pulse 6s ease-in-out infinite alternate;
-    pointer-events: none;
-  }
-  .hero-glow2 {
-    position: absolute; bottom: 10%; left: -5%;
-    width: 400px; height: 400px;
-    background: radial-gradient(circle, rgba(212,168,67,0.08) 0%, transparent 70%);
-    animation: pulse 8s ease-in-out infinite alternate-reverse;
-    pointer-events: none;
-  }
-  @keyframes pulse { from { transform: scale(1); opacity: 0.5; } to { transform: scale(1.3); opacity: 1; } }
+    .nav-links{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.65rem;
+      align-items:center;
+    }
 
-  .hero-content { position: relative; z-index: 2; max-width: 900px; }
-  .hero-eyebrow {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.72rem; letter-spacing: 0.25em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 1.5rem;
-    display: flex; align-items: center; gap: 0.8rem;
-    opacity: 0; animation: fadeUp 0.8s 0.2s forwards;
-  }
-  .hero-eyebrow::before { content: ''; display: block; width: 40px; height: 1px; background: var(--gold); }
+    .nav-links a{
+      color:var(--muted);
+      text-decoration:none;
+      padding:.7rem .95rem;
+      border-radius:999px;
+      transition:.25s ease;
+      font-size:.95rem;
+    }
+    .nav-links a:hover{
+      color:var(--text);
+      background:rgba(255,255,255,0.08);
+    }
 
-  .hero-name {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(4rem, 9vw, 8rem);
-    font-weight: 900;
-    line-height: 0.95;
-    margin-bottom: 0.5rem;
-    opacity: 0; animation: fadeUp 0.9s 0.35s forwards;
-  }
-  .hero-name span { color: var(--gold); font-style: italic; }
+    .cta{
+      display:inline-flex;
+      align-items:center;
+      gap:.65rem;
+      text-decoration:none;
+      color:#071120;
+      background:linear-gradient(135deg,var(--accent),#b4fff2);
+      padding:.95rem 1.15rem;
+      border-radius:999px;
+      font-weight:800;
+      box-shadow:0 10px 35px rgba(110,231,255,0.28);
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .cta:hover{transform:translateY(-2px); box-shadow:0 16px 45px rgba(110,231,255,0.34);}
 
-  .hero-title {
-    font-size: clamp(1rem, 2.2vw, 1.5rem);
-    font-weight: 600; color: var(--muted);
-    letter-spacing: 0.1em;
-    margin-bottom: 2rem;
-    opacity: 0; animation: fadeUp 0.9s 0.5s forwards;
-  }
+    header.hero{
+      padding:4.5rem 0 2.5rem;
+      position:relative;
+    }
 
-  .hero-summary {
-    max-width: 580px;
-    font-size: 0.95rem; line-height: 1.8;
-    color: rgba(244,240,232,0.7);
-    margin-bottom: 3rem;
-    opacity: 0; animation: fadeUp 0.9s 0.65s forwards;
-  }
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.3fr .9fr;
+      gap:1.5rem;
+      align-items:stretch;
+    }
 
-  .hero-cta {
-    display: flex; gap: 1rem; flex-wrap: wrap;
-    opacity: 0; animation: fadeUp 0.9s 0.8s forwards;
-  }
-  .btn {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    padding: 0.75rem 1.8rem;
-    font-family: 'Syne', sans-serif;
-    font-size: 0.8rem; font-weight: 700;
-    letter-spacing: 0.15em; text-transform: uppercase;
-    text-decoration: none;
-    border-radius: 2px;
-    cursor: pointer; transition: all 0.3s;
-  }
-  .btn-primary { background: var(--gold); color: var(--black); border: none; }
-  .btn-primary:hover { background: var(--gold2); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(212,168,67,0.3); }
-  .btn-outline { background: transparent; color: var(--white); border: 1px solid rgba(255,255,255,0.2); }
-  .btn-outline:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+    .panel{
+      background:linear-gradient(180deg, rgba(255,255,255,0.11), rgba(255,255,255,0.05));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
 
-  .hero-stats {
-    position: absolute; bottom: 3rem; right: 3rem; z-index: 2;
-    display: flex; gap: 3rem;
-    opacity: 0; animation: fadeUp 0.9s 1s forwards;
-  }
-  .stat { text-align: right; }
-  .stat-number {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem; font-weight: 700; color: var(--gold);
-    line-height: 1;
-  }
-  .stat-label { font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+    .hero-card{
+      padding:2.2rem;
+      position:relative;
+      overflow:hidden;
+    }
 
-  .scroll-indicator {
-    position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
-    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-    color: var(--muted); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
-    animation: bounce 2s ease-in-out infinite;
-    z-index: 2;
-  }
-  .scroll-indicator span { display: block; width: 1px; height: 40px; background: linear-gradient(var(--gold), transparent); }
-  @keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(8px); } }
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:.55rem;
+      padding:.55rem .85rem;
+      border-radius:999px;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.1);
+      color:var(--accent);
+      font-weight:700;
+      font-size:.92rem;
+      margin-bottom:1rem;
+    }
 
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    h1{
+      font-size:clamp(2.4rem, 6vw, 5rem);
+      line-height:.98;
+      margin:.2rem 0 .8rem;
+      letter-spacing:-.04em;
+      max-width:11ch;
+    }
 
-  /* ─── Section Common ─── */
-  section { padding: 6rem 3rem; position: relative; }
-  .section-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 0.8rem;
-    display: flex; align-items: center; gap: 0.8rem;
-  }
-  .section-label::after { content: ''; flex: 1; max-width: 60px; height: 1px; background: var(--gold); }
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2rem, 4vw, 3.2rem);
-    font-weight: 700; margin-bottom: 3rem;
-    line-height: 1.15;
-  }
+    .gradient-text{
+      background:linear-gradient(135deg,var(--accent),#ffffff 30%,var(--accent2) 60%,var(--accent3));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
 
-  /* ─── Skills Ticker ─── */
-  #skills-ticker {
-    background: var(--deep);
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    padding: 1.2rem 0;
-    overflow: hidden;
-    position: relative; z-index: 2;
-  }
-  .ticker-track {
-    display: flex; gap: 3rem;
-    animation: ticker 30s linear infinite;
-    white-space: nowrap;
-  }
-  .ticker-track:hover { animation-play-state: paused; }
-  .ticker-item {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--muted); flex-shrink: 0;
-    display: flex; align-items: center; gap: 0.8rem;
-  }
-  .ticker-item::before { content: '◆'; color: var(--gold); font-size: 0.5rem; }
-  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .lead{
+      color:var(--muted);
+      font-size:1.08rem;
+      line-height:1.7;
+      max-width:68ch;
+    }
 
-  /* ─── Experience ─── */
-  #experience { background: var(--deep); }
-  .exp-grid { display: grid; gap: 1.5px; }
-  .exp-item {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    padding: 2.5rem;
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 2rem;
-    transition: all 0.4s;
-    position: relative; overflow: hidden;
-    cursor: pointer;
-  }
-  .exp-item::before {
-    content: '';
-    position: absolute; left: 0; top: 0; bottom: 0;
-    width: 3px; background: var(--gold);
-    transform: scaleY(0);
-    transition: transform 0.4s;
-  }
-  .exp-item:hover { background: var(--card); border-color: rgba(212,168,67,0.2); }
-  .exp-item:hover::before { transform: scaleY(1); }
-  .exp-item.active { background: var(--card); border-color: rgba(212,168,67,0.3); }
-  .exp-item.active::before { transform: scaleY(1); }
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.85rem;
+      margin-top:1.35rem;
+    }
 
-  .exp-meta { }
-  .exp-period {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.72rem; color: var(--gold);
-    letter-spacing: 0.05em; margin-bottom: 0.5rem;
-  }
-  .exp-company {
-    font-size: 0.8rem; font-weight: 600;
-    color: var(--muted); letter-spacing: 0.05em;
-  }
+    .ghost{
+      display:inline-flex;
+      align-items:center;
+      gap:.55rem;
+      text-decoration:none;
+      color:var(--text);
+      border:1px solid rgba(255,255,255,0.12);
+      padding:.92rem 1.12rem;
+      border-radius:999px;
+      background:rgba(255,255,255,0.05);
+      transition:.25s ease;
+    }
+    .ghost:hover{background:rgba(255,255,255,0.1); transform:translateY(-2px);}
 
-  .exp-body {}
-  .exp-role {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.35rem; font-weight: 700;
-    margin-bottom: 0.8rem;
-  }
-  .exp-details {
-    list-style: none;
-    max-height: 0; overflow: hidden;
-    transition: max-height 0.5s ease;
-  }
-  .exp-item.active .exp-details { max-height: 400px; }
-  .exp-details li {
-    font-size: 0.87rem; line-height: 1.7;
-    color: rgba(244,240,232,0.7);
-    padding: 0.3rem 0;
-    padding-left: 1rem;
-    border-left: 2px solid rgba(212,168,67,0.2);
-    margin-bottom: 0.3rem;
-  }
-  .exp-expand {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem; color: var(--gold);
-    letter-spacing: 0.1em; margin-top: 0.8rem;
-    opacity: 0.6;
-  }
+    .quick-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.75rem;
+      margin-top:1.5rem;
+    }
+    .chip{
+      padding:.72rem .9rem;
+      border-radius:14px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.1);
+      color:#dfe6ff;
+      font-size:.95rem;
+    }
 
-  /* ─── Skills ─── */
-  #skills { background: var(--black); }
-  .skills-container { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-  .skill-category {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    padding: 2rem;
-    border-radius: 2px;
-  }
-  .skill-cat-title {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--gold); margin-bottom: 1.5rem;
-  }
-  .skill-bar-group { margin-bottom: 1rem; }
-  .skill-bar-label {
-    display: flex; justify-content: space-between;
-    font-size: 0.82rem; margin-bottom: 0.4rem;
-    color: rgba(244,240,232,0.8);
-  }
-  .skill-bar-bg { background: rgba(255,255,255,0.06); height: 4px; border-radius: 2px; }
-  .skill-bar-fill {
-    height: 4px; border-radius: 2px;
-    background: linear-gradient(90deg, var(--gold), var(--gold2));
-    width: 0; transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .skill-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-  .skill-tag {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.68rem; letter-spacing: 0.08em;
-    padding: 0.3rem 0.7rem;
-    border: 1px solid rgba(212,168,67,0.25);
-    color: var(--muted);
-    border-radius: 2px;
-    transition: all 0.25s;
-  }
-  .skill-tag:hover { border-color: var(--gold); color: var(--gold); background: rgba(212,168,67,0.05); }
+    .profile-card{
+      padding:1.25rem;
+      display:grid;
+      gap:1rem;
+    }
 
-  /* ─── Education ─── */
-  #education { background: var(--deep); }
-  .edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-  .edu-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    padding: 2rem; border-radius: 2px;
-    transition: all 0.35s; position: relative; overflow: hidden;
-  }
-  .edu-card::after {
-    content: '';
-    position: absolute; top: 0; right: 0;
-    width: 80px; height: 80px;
-    background: radial-gradient(circle at top right, rgba(212,168,67,0.08), transparent 70%);
-    transition: all 0.4s;
-  }
-  .edu-card:hover { border-color: rgba(212,168,67,0.25); transform: translateY(-4px); }
-  .edu-card:hover::after { width: 150px; height: 150px; }
-  .edu-degree {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem; font-weight: 700;
-    margin-bottom: 0.3rem;
-  }
-  .edu-school { font-size: 0.82rem; color: var(--gold); margin-bottom: 0.5rem; }
-  .edu-thesis {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.72rem; color: var(--muted);
-    font-style: italic; line-height: 1.5;
-  }
+    .profile-top{
+      padding:1.2rem;
+      border-radius:22px;
+      background:linear-gradient(135deg, rgba(110,231,255,0.16), rgba(155,140,255,0.14), rgba(255,122,198,0.14));
+      border:1px solid rgba(255,255,255,0.13);
+      min-height:240px;
+      position:relative;
+      overflow:hidden;
+    }
+    .profile-top::after{
+      content:"LC";
+      position:absolute;
+      right:1rem;
+      bottom:-.4rem;
+      font-size:6rem;
+      font-weight:900;
+      letter-spacing:-.06em;
+      color:rgba(255,255,255,0.08);
+    }
 
-  .certs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
-  .cert-item {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    padding: 1.2rem 1.5rem;
-    border-radius: 2px;
-    font-size: 0.8rem; line-height: 1.5;
-    color: rgba(244,240,232,0.7);
-    transition: all 0.3s;
-  }
-  .cert-item:hover { border-color: rgba(212,168,67,0.2); color: var(--white); }
-  .cert-provider {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem; letter-spacing: 0.1em;
-    color: var(--gold); margin-bottom: 0.4rem;
-  }
+    .profile-title{
+      font-size:1.5rem;
+      font-weight:800;
+      margin:0 0 .35rem;
+    }
 
-  /* ─── Marquee ─── */
-  #marquee { padding: 0; overflow: hidden; background: var(--gold); }
-  .marquee-track {
-    display: flex; gap: 2rem;
-    animation: ticker 20s linear infinite;
-    padding: 0.8rem 0;
-  }
-  .marquee-item {
-    font-family: 'Playfair Display', serif;
-    font-size: 1rem; font-weight: 700; font-style: italic;
-    color: var(--black); flex-shrink: 0;
-    letter-spacing: 0.03em;
-  }
-  .marquee-item span { color: rgba(0,0,0,0.3); margin: 0 1.5rem; }
+    .profile-sub{
+      color:var(--muted);
+      line-height:1.65;
+      max-width:34ch;
+    }
 
-  /* ─── Contact ─── */
-  #contact { background: var(--black); }
-  .contact-inner {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 4rem; align-items: center;
-  }
-  .contact-headline {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    font-weight: 900; line-height: 1.1;
-    margin-bottom: 1.5rem;
-  }
-  .contact-headline em { color: var(--gold); font-style: italic; }
-  .contact-desc { color: rgba(244,240,232,0.6); font-size: 0.9rem; line-height: 1.8; margin-bottom: 2rem; }
-  .contact-links { display: flex; flex-direction: column; gap: 1rem; }
-  .contact-link {
-    display: flex; align-items: center; gap: 1rem;
-    padding: 1rem 1.5rem;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    text-decoration: none; color: var(--white);
-    font-size: 0.88rem;
-    transition: all 0.3s;
-    border-radius: 2px;
-  }
-  .contact-link:hover { border-color: var(--gold); background: var(--card); transform: translateX(4px); }
-  .contact-link-icon { color: var(--gold); font-size: 1.1rem; width: 20px; text-align: center; }
-  .contact-link-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); display: block; }
+    .stat-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:.9rem;
+    }
 
-  /* ─── Interests ─── */
-  #interests { background: var(--deep); padding: 4rem 3rem; }
-  .interests-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
-  .interest-pill {
-    display: flex; align-items: center; gap: 0.6rem;
-    padding: 0.7rem 1.4rem;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    font-size: 0.85rem;
-    transition: all 0.3s;
-  }
-  .interest-pill:hover { border-color: var(--gold); background: rgba(212,168,67,0.05); transform: scale(1.03); }
-  .interest-icon { font-size: 1.1rem; }
+    .stat{
+      padding:1rem;
+      border-radius:20px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.09);
+      min-height:110px;
+    }
+    .stat .num{
+      font-size:2rem;
+      font-weight:900;
+      letter-spacing:-.04em;
+      margin:0 0 .35rem;
+    }
+    .stat .label{
+      color:var(--muted);
+      line-height:1.45;
+      font-size:.95rem;
+    }
 
-  /* ─── Footer ─── */
-  footer {
-    background: var(--black);
-    border-top: 1px solid var(--border);
-    padding: 2rem 3rem;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .footer-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1rem; color: var(--muted);
-  }
-  .footer-note {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem; color: var(--muted);
-    letter-spacing: 0.1em;
-  }
+    section{
+      padding:1rem 0 1.4rem;
+    }
 
-  /* ─── Floating TOC ─── */
-  #toc {
-    position: fixed; right: 1.5rem; top: 50%; transform: translateY(-50%);
-    z-index: 50;
-    display: flex; flex-direction: column; gap: 0.6rem;
-  }
-  .toc-dot {
-    display: flex; align-items: center; gap: 0.6rem;
-    cursor: pointer; text-decoration: none;
-    justify-content: flex-end;
-  }
-  .toc-dot-inner {
-    width: 6px; height: 6px;
-    border-radius: 50%; background: var(--muted);
-    transition: all 0.3s; flex-shrink: 0;
-  }
-  .toc-dot:hover .toc-dot-inner, .toc-dot.active .toc-dot-inner {
-    background: var(--gold); width: 20px; border-radius: 3px;
-  }
-  .toc-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
-    color: transparent; white-space: nowrap;
-    transition: color 0.3s;
-  }
-  .toc-dot:hover .toc-label { color: var(--muted); }
+    .section-head{
+      display:flex;
+      align-items:end;
+      justify-content:space-between;
+      gap:1rem;
+      margin:1rem 0 1.1rem;
+    }
 
-  /* ─── Scroll Reveal ─── */
-  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.7s ease, transform 0.7s ease; }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
-  .reveal-delay-1 { transition-delay: 0.1s; }
-  .reveal-delay-2 { transition-delay: 0.2s; }
-  .reveal-delay-3 { transition-delay: 0.3s; }
+    .section-head h2{
+      margin:0;
+      font-size:clamp(1.5rem, 3vw, 2.4rem);
+      letter-spacing:-.04em;
+    }
+    .section-head p{
+      margin:0;
+      color:var(--muted);
+      max-width:50ch;
+    }
 
-  /* ─── Live Clock ─── */
-  #live-clock {
-    position: fixed; top: 1.3rem; left: 50%; transform: translateX(-50%);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem; color: var(--muted);
-    letter-spacing: 0.15em; z-index: 101;
-  }
+    .cards-3{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:1rem;
+    }
 
-  /* ─── Market Ticker ─── */
-  #market-bar {
-    background: rgba(13,13,26,0.95);
-    border-bottom: 1px solid var(--border);
-    padding: 0.4rem 3rem;
-    display: flex; gap: 2rem; flex-wrap: wrap;
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
-  }
-  .market-item {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem; letter-spacing: 0.08em;
-    display: flex; gap: 0.5rem; align-items: center;
-  }
-  .market-name { color: var(--muted); }
-  .market-val { color: var(--white); }
-  .market-change.up { color: var(--teal); }
-  .market-change.down { color: var(--red); }
+    .card{
+      padding:1.35rem;
+      background:linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.045));
+      border:1px solid rgba(255,255,255,0.09);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      transition:transform .25s ease, border-color .25s ease;
+    }
+    .card:hover{
+      transform:translateY(-4px);
+      border-color:rgba(110,231,255,0.3);
+    }
 
-  @media (max-width: 768px) {
-    nav { padding: 1rem 1.5rem; }
-    .nav-links { display: none; }
-    section { padding: 4rem 1.5rem; }
-    #hero { padding: 7rem 1.5rem 3rem; }
-    .hero-stats { display: none; }
-    .skills-container, .edu-grid { grid-template-columns: 1fr; }
-    .contact-inner { grid-template-columns: 1fr; }
-    .exp-item { grid-template-columns: 1fr; gap: 0.5rem; }
-    .certs-grid { grid-template-columns: 1fr 1fr; }
-    #toc { display: none; }
-    #live-clock { display: none; }
-    #market-bar { display: none; }
-    footer { flex-direction: column; gap: 0.5rem; text-align: center; }
-  }
-</style>
+    .card-icon{
+      width:48px;height:48px;border-radius:16px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg, rgba(110,231,255,0.22), rgba(155,140,255,0.18));
+      margin-bottom:.8rem;
+      font-size:1.2rem;
+    }
+
+    .card h3{
+      margin:.1rem 0 .6rem;
+      font-size:1.1rem;
+    }
+
+    .card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.7;
+    }
+
+    .experience-wrap{
+      display:grid;
+      grid-template-columns:290px 1fr;
+      gap:1rem;
+      align-items:start;
+    }
+
+    .timeline-nav{
+      position:sticky;
+      top:88px;
+      padding:1rem;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.09);
+      border-radius:22px;
+    }
+
+    .job-btn{
+      width:100%;
+      text-align:left;
+      border:none;
+      background:transparent;
+      color:var(--text);
+      padding:1rem;
+      border-radius:18px;
+      cursor:pointer;
+      transition:.2s ease;
+      display:block;
+      margin-bottom:.45rem;
+    }
+    .job-btn small{
+      display:block;
+      color:var(--muted);
+      margin-top:.25rem;
+    }
+    .job-btn.active, .job-btn:hover{
+      background:linear-gradient(135deg, rgba(110,231,255,0.12), rgba(155,140,255,0.12));
+      outline:1px solid rgba(110,231,255,0.2);
+    }
+
+    .job-panel{
+      display:none;
+      padding:1.35rem;
+      border-radius:22px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+      border:1px solid rgba(255,255,255,0.09);
+      min-height:420px;
+    }
+    .job-panel.active{display:block}
+    .job-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.7rem;
+      margin:.7rem 0 1rem;
+    }
+    .job-meta span{
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.09);
+      color:#e7ecff;
+      padding:.5rem .72rem;
+      border-radius:999px;
+      font-size:.92rem;
+    }
+    .job-panel ul{
+      margin:0;
+      padding-left:1.15rem;
+      color:var(--muted);
+      line-height:1.8;
+    }
+
+    .skills-board{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:1rem;
+    }
+
+    .skill-groups{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:1rem;
+    }
+
+    .skill-box{
+      padding:1.2rem;
+      border-radius:20px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.09);
+    }
+    .skill-box h3{margin:.1rem 0 .8rem; font-size:1rem;}
+    .tags{display:flex; flex-wrap:wrap; gap:.55rem;}
+    .tag{
+      padding:.52rem .72rem;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:999px;
+      color:#e9eeff;
+      font-size:.88rem;
+    }
+
+    .highlight-card{
+      padding:1.4rem;
+      border-radius:22px;
+      background:
+        radial-gradient(circle at top right, rgba(130,255,161,0.12), transparent 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.045));
+      border:1px solid rgba(255,255,255,0.09);
+      box-shadow:var(--shadow);
+    }
+    .highlight-card h3{margin:.2rem 0 .6rem; font-size:1.3rem}
+    .highlight-card p{color:var(--muted); line-height:1.75}
+    .meter{
+      margin-top:1rem;
+      display:grid;
+      gap:.8rem;
+    }
+    .meter-row span{
+      display:flex; justify-content:space-between; gap:1rem;
+      font-size:.92rem; color:#e9eeff; margin-bottom:.35rem;
+    }
+    .bar{
+      height:10px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden;
+    }
+    .bar > i{
+      display:block; height:100%;
+      border-radius:999px;
+      background:linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+      width:0;
+      transition:width 1.2s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .edu-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:1rem;
+    }
+
+    .footer-card{
+      padding:1.6rem;
+      border-radius:26px;
+      background:linear-gradient(135deg, rgba(110,231,255,0.12), rgba(155,140,255,0.12), rgba(255,122,198,0.12));
+      border:1px solid rgba(255,255,255,0.12);
+      display:flex;
+      justify-content:space-between;
+      gap:1rem;
+      align-items:center;
+      flex-wrap:wrap;
+      margin:1.4rem 0 2.4rem;
+      box-shadow:var(--shadow);
+    }
+
+    .footer-card h3{
+      margin:0 0 .35rem;
+      font-size:1.5rem;
+      letter-spacing:-.03em;
+    }
+    .footer-card p{
+      margin:0;
+      color:#edf1ff;
+      max-width:42rem;
+      line-height:1.7;
+    }
+
+    .mini{
+      color:var(--muted);
+      text-align:center;
+      padding:0 0 2rem;
+      font-size:.94rem;
+    }
+
+    .reveal{
+      opacity:0;
+      transform:translateY(24px);
+      transition:opacity .75s ease, transform .75s ease;
+    }
+    .reveal.visible{
+      opacity:1;
+      transform:none;
+    }
+
+    .floating{
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-8px)}
+    }
+
+    .accent-line{
+      width:110px;
+      height:5px;
+      border-radius:999px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));
+      margin-top:.8rem;
+    }
+
+    .top-btn{
+      position:fixed;
+      right:1rem;
+      bottom:1rem;
+      z-index:80;
+      width:50px;height:50px;
+      border:none;
+      border-radius:50%;
+      cursor:pointer;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#091120;
+      font-size:1.2rem;
+      font-weight:900;
+      box-shadow:var(--shadow);
+      opacity:0;
+      transform:translateY(15px);
+      transition:.25s ease;
+    }
+    .top-btn.show{opacity:1; transform:none;}
+
+    @media (max-width: 1024px){
+      .hero-grid,
+      .experience-wrap,
+      .skills-board,
+      .cards-3,
+      .edu-grid{
+        grid-template-columns:1fr;
+      }
+      .skill-groups{
+        grid-template-columns:1fr;
+      }
+      .timeline-nav{
+        position:static;
+      }
+    }
+
+    @media (max-width: 720px){
+      .nav-inner{flex-direction:column; align-items:flex-start;}
+      .nav-links{gap:.3rem}
+      h1{max-width:100%}
+      .hero-card, .profile-card, .card, .job-panel, .highlight-card, .timeline-nav{padding:1rem}
+      .stat-grid{grid-template-columns:1fr 1fr}
+      .footer-card{padding:1.2rem}
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      html{scroll-behavior:auto}
+      *, *::before, *::after{animation:none !important; transition:none !important}
+    }
+  </style>
 </head>
 <body>
+  <canvas id="bgCanvas"></canvas>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+  <div class="glow g3"></div>
 
-<!-- Custom cursor -->
-<div id="cursor"></div>
-<div id="cursor-ring"></div>
-
-<!-- Live Clock -->
-<div id="live-clock"></div>
-
-<!-- Nav -->
-<nav>
-  <div class="nav-logo">L. Cingolani</div>
-  <ul class="nav-links">
-    <li><a href="#hero">Home</a></li>
-    <li><a href="#experience">Experience</a></li>
-    <li><a href="#skills">Skills</a></li>
-    <li><a href="#education">Education</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ul>
-</nav>
-
-<!-- TOC dots -->
-<nav id="toc" aria-label="Page sections">
-  <a class="toc-dot active" href="#hero" data-section="hero"><span class="toc-label">Home</span><div class="toc-dot-inner"></div></a>
-  <a class="toc-dot" href="#experience" data-section="experience"><span class="toc-label">Experience</span><div class="toc-dot-inner"></div></a>
-  <a class="toc-dot" href="#skills" data-section="skills"><span class="toc-label">Skills</span><div class="toc-dot-inner"></div></a>
-  <a class="toc-dot" href="#education" data-section="education"><span class="toc-label">Education</span><div class="toc-dot-inner"></div></a>
-  <a class="toc-dot" href="#contact" data-section="contact"><span class="toc-label">Contact</span><div class="toc-dot-inner"></div></a>
-</nav>
-
-<!-- Hero -->
-<section id="hero">
-  <div class="hero-bg-grid"></div>
-  <div class="hero-glow"></div>
-  <div class="hero-glow2"></div>
-
-  <div class="hero-content">
-    <p class="hero-eyebrow">Available for new opportunities</p>
-    <h1 class="hero-name">Lorenzo<br /><span>Cingolani</span></h1>
-    <p class="hero-title">Senior Trader &amp; Execution Strategist · London</p>
-    <p class="hero-summary">20+ years across global derivatives, FX &amp; rates markets. Expert in execution algorithm design, TCA analytics, and smart order routing. Bridging quantitative research with live market intuition to deliver best execution at scale.</p>
-    <div class="hero-cta">
-      <a href="#experience" class="btn btn-primary">View Experience</a>
-      <a href="#contact" class="btn btn-outline">Get in Touch</a>
-    </div>
-  </div>
-
-  <div class="hero-stats">
-    <div class="stat">
-      <div class="stat-number" data-target="20">0</div>
-      <div class="stat-label">Years Trading</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number" data-target="5">0</div>
-      <div class="stat-label">Asset Classes</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number" data-target="4">0</div>
-      <div class="stat-label">Firms</div>
-    </div>
-  </div>
-
-  <div class="scroll-indicator">
-    <span></span>
-    scroll
-  </div>
-</section>
-
-<!-- Skills Ticker -->
-<div id="skills-ticker" aria-hidden="true">
-  <div class="ticker-track" id="ticker-track"></div>
-</div>
-
-<!-- Experience -->
-<section id="experience">
-  <div class="section-label">Career Timeline</div>
-  <h2 class="section-title reveal">Professional<br /><em style="font-style:italic;color:var(--gold)">Experience</em></h2>
-
-  <div class="exp-grid reveal">
-    <div class="exp-item active" onclick="toggleExp(this)">
-      <div class="exp-meta">
-        <div class="exp-period">2012 – 2024</div>
-        <div class="exp-company">PGIM Wadhwani</div>
-      </div>
-      <div class="exp-body">
-        <div class="exp-role">Senior Trader</div>
-        <ul class="exp-details">
-          <li>Worked alongside Dr. Sushil Wadhwani translating alpha signals into optimally executed trades, balancing timing, venue selection and order management</li>
-          <li>Executed multi-asset trades across FX, rates, and equity index futures (listed and OTC), prioritising alpha preservation and slippage minimisation</li>
-          <li>Designed, calibrated, and monitored execution algorithms in collaboration with quant researchers and developers</li>
-          <li>Refined smart order routing logic adapting to market conditions, liquidity shifts, and venue microstructure</li>
-          <li>Contributed to EMS/OMS integration including FIX connectivity enhancements and new asset class support</li>
-          <li>Built comprehensive TCA framework using Python &amp; SQL — monthly reports to Senior Management and Investment Committee</li>
-          <li>Cultivated broker relationships to improve execution quality, reduce costs, and optimise liquidity access</li>
-        </ul>
-        <div class="exp-expand">▼ click to expand</div>
-      </div>
-    </div>
-
-    <div class="exp-item" onclick="toggleExp(this)">
-      <div class="exp-meta">
-        <div class="exp-period">2010 – 2012</div>
-        <div class="exp-company">AHL – Man Group plc</div>
-      </div>
-      <div class="exp-body">
-        <div class="exp-role">Trader</div>
-        <ul class="exp-details">
-          <li>Efficient execution of AHL transactions across Derivatives and FX markets, minimising slippage and market impact</li>
-          <li>Collaborated with Algo research team, providing feedback to improve execution algorithm performance</li>
-          <li>Contributed to slippage comparison: human traders vs. algo-automated trader and lowering operational risk</li>
-          <li>Managed the trading book: opening/closing months, moving positions along curves, identifying netting opportunities</li>
-          <li>Monitored market liquidity and intraday volatility providing inputs on sampling times and daily throughput</li>
-        </ul>
-        <div class="exp-expand">▼ click to expand</div>
-      </div>
-    </div>
-
-    <div class="exp-item" onclick="toggleExp(this)">
-      <div class="exp-meta">
-        <div class="exp-period">2005 – 2010</div>
-        <div class="exp-company">Banca IMI · Intesa Sanpaolo</div>
-      </div>
-      <div class="exp-body">
-        <div class="exp-role">Futures &amp; Options Sales Trader</div>
-        <ul class="exp-details">
-          <li>Trade execution and advisory covering listed derivatives (futures, options) for large European asset managers and HNWIs</li>
-          <li>Price discovery liaising with Market Makers for strategies and large-size trades</li>
-          <li>Regular interaction with proprietary traders and PMs, providing real-time intraday updates and trading ideas</li>
-          <li>Managed client relationships and addressed clearing and back-office issues</li>
-        </ul>
-        <div class="exp-expand">▼ click to expand</div>
-      </div>
-    </div>
-
-    <div class="exp-item" onclick="toggleExp(this)">
-      <div class="exp-meta">
-        <div class="exp-period">2024 – Present</div>
-        <div class="exp-company">Personal Projects</div>
-      </div>
-      <div class="exp-body">
-        <div class="exp-role">Career Break &amp; R&amp;D</div>
-        <ul class="exp-details">
-          <li>Designed and implemented a systematic trading and execution framework in Python</li>
-          <li>Built signal generation, execution logic, and order routing via broker APIs for research and strategy testing</li>
-          <li>International travel and continued personal development in quantitative methods</li>
-        </ul>
-        <div class="exp-expand">▼ click to expand</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Marquee -->
-<div id="marquee" aria-hidden="true">
-  <div class="marquee-track" id="marquee-track"></div>
-</div>
-
-<!-- Skills -->
-<section id="skills">
-  <div class="section-label">Technical Proficiency</div>
-  <h2 class="section-title reveal">Core <em style="font-style:italic;color:var(--gold)">Skills</em></h2>
-
-  <div class="skills-container">
-    <div class="skill-category reveal reveal-delay-1">
-      <div class="skill-cat-title">Execution &amp; Markets</div>
-      <div class="skill-bar-group">
-        <div class="skill-bar-label"><span>Multi-Asset Execution (FX, Rates, Futures)</span><span>95%</span></div>
-        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="95"></div></div>
-      </div>
-      <div class="skill-bar-group">
-        <div class="skill-bar-label"><span>TCA &amp; Post-Trade Analytics</span><span>92%</span></div>
-        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="92"></div></div>
-      </div>
-      <div class="skill-bar-group">
-        <div class="skill-bar-label"><span>Algo Calibration &amp; Smart Order Routing</span><span>90%</span></div>
-        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="90"></div></div>
-      </div>
-      <div class="skill-bar-group">
-        <div class="skill-bar-label"><span>Market Microstructure</span><span>88%</span></div>
-        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="88"></div></div>
-      </div>
-      <div class="skill-bar-group">
-        <div class="skill-bar-label"><span>EMS/OMS Integration &amp; FIX Protocol</span><span>85%</span></div>
-        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="85"></div></div>
-      </div>
-    </div>
-
-    <div class="skill-category reveal reveal-delay-2">
-      <div class="skill-cat-title">Quantitative &amp; Technology</div>
-      <div class="skill-bar-group">
-        <div class="skill-bar-label"><span>Python (Pandas, NumPy, scikit-learn)</span><span>85%</span></div>
-        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="85"></div></div>
-      </div>
-      <div class="skill-bar-group">
-        <div class="skill-bar-label"><span>SQL</span><span>82%</span></div>
-        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="82"></div></div>
-      </div>
-      <div class="skill-bar-group">
-        <div class="skill-bar-label"><span>Advanced Excel &amp; Power BI</span><span>80%</span></div>
-        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="80"></div></div>
-      </div>
-      <div class="skill-bar-group">
-        <div class="skill-bar-label"><span>q/kdb</span><span>55%</span></div>
-        <div class="skill-bar-bg"><div class="skill-bar-fill" data-width="55"></div></div>
-      </div>
-    </div>
-
-    <div class="skill-category reveal reveal-delay-1" style="grid-column: 1 / -1;">
-      <div class="skill-cat-title">Platforms &amp; Connectivity</div>
-      <div class="skill-tags">
-        <span class="skill-tag">TradeWeb</span>
-        <span class="skill-tag">MarketAxess</span>
-        <span class="skill-tag">Bloomberg EMSX</span>
-        <span class="skill-tag">Bloomberg FIT</span>
-        <span class="skill-tag">Bloomberg FXGO</span>
-        <span class="skill-tag">Trading Technologies (TT)</span>
-        <span class="skill-tag">Charles River</span>
-        <span class="skill-tag">FXall</span>
-        <span class="skill-tag">In-house EMS</span>
-        <span class="skill-tag">FIX Protocol</span>
-        <span class="skill-tag">Algo Wheel</span>
-        <span class="skill-tag">Smart Order Routing</span>
-        <span class="skill-tag">Yield Curve Trades</span>
-        <span class="skill-tag">Butterfly Strategies</span>
-        <span class="skill-tag">OTC Derivatives</span>
-        <span class="skill-tag">Listed Futures &amp; Options</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Education -->
-<section id="education">
-  <div class="section-label">Academic Background</div>
-  <h2 class="section-title reveal">Education &amp;<br /><em style="font-style:italic;color:var(--gold)">Certifications</em></h2>
-
-  <div class="edu-grid reveal">
-    <div class="edu-card">
-      <div class="edu-degree">MSc — Big Data Science</div>
-      <div class="edu-school">Queen Mary University of London</div>
-      <div class="edu-thesis">Thesis: "Systematic Trading With Markov Chains"</div>
-    </div>
-    <div class="edu-card">
-      <div class="edu-degree">BSc — Financial Economics</div>
-      <div class="edu-school">University of London — Birkbeck College</div>
-      <div class="edu-thesis">Thesis: "Purchasing Power Parity: an Empirical Insight"</div>
-    </div>
-  </div>
-
-  <div class="certs-grid reveal">
-    <div class="cert-item">
-      <div class="cert-provider">Securities Institute</div>
-      Units 1, 2, 3 — Financial Regulations, Securities, Derivatives · FCA CF Client Dealing
-    </div>
-    <div class="cert-item">
-      <div class="cert-provider">Eurex</div>
-      GUI Trader Exam (Complete Form)
-    </div>
-    <div class="cert-item">
-      <div class="cert-provider">Coursera · Imperial College</div>
-      Mathematics for Machine Learning: Linear Algebra, Multivariate Calculus, PCA
-    </div>
-    <div class="cert-item">
-      <div class="cert-provider">Coursera · INSEAD</div>
-      Blockchain, Cryptoassets &amp; Decentralised Finance
-    </div>
-    <div class="cert-item">
-      <div class="cert-provider">KX Academy</div>
-      q/kdb Level 1
-    </div>
-    <div class="cert-item">
-      <div class="cert-provider">Nationality</div>
-      British &amp; Italian · Based in London W5
-    </div>
-  </div>
-</section>
-
-<!-- Interests -->
-<section id="interests">
-  <div class="section-label">Outside the Markets</div>
-  <h2 class="section-title reveal" style="font-size:1.8rem; margin-bottom:0.5rem">Personal <em style="font-style:italic;color:var(--gold)">Interests</em></h2>
-  <div class="interests-row reveal">
-    <div class="interest-pill"><span class="interest-icon">🧘</span> Yoga &amp; Breathing Control</div>
-    <div class="interest-pill"><span class="interest-icon">✈️</span> Travelling &amp; Cultural Exploration</div>
-    <div class="interest-pill"><span class="interest-icon">⚽</span> Football — Semi-Professional &amp; Youth Coach U12</div>
-    <div class="interest-pill"><span class="interest-icon">🏃</span> Charity Events — 50km Race</div>
-  </div>
-</section>
-
-<!-- Contact -->
-<section id="contact">
-  <div class="contact-inner">
-    <div>
-      <div class="section-label">Get In Touch</div>
-      <h2 class="contact-headline reveal">Let's <em>work</em><br />together.</h2>
-      <p class="contact-desc reveal">Open to senior execution, trading technology, or quant research roles. Actively exploring opportunities in London and globally. Dual British/Italian nationality.</p>
-      <a href="mailto:lorenzoc2026@gmail.com" class="btn btn-primary reveal" style="display:inline-flex">Send an Email →</a>
-    </div>
-    <div class="contact-links reveal reveal-delay-2">
-      <a class="contact-link" href="mailto:lorenzoc2026@gmail.com">
-        <span class="contact-link-icon">✉</span>
-        <div>
-          <span class="contact-link-label">Email</span>
-          lorenzoc2026@gmail.com
-        </div>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="#home">
+        <span class="brand-badge">LC</span>
+        <span>Lorenzo Cingolani</span>
       </a>
-      <a class="contact-link" href="tel:+447766550788">
-        <span class="contact-link-icon">☏</span>
-        <div>
-          <span class="contact-link-label">Phone</span>
-          +44 7766 550 788
-        </div>
-      </a>
-      <a class="contact-link" href="https://github.com/LorenzoCingolani" target="_blank">
-        <span class="contact-link-icon">⌥</span>
-        <div>
-          <span class="contact-link-label">GitHub</span>
-          LorenzoCingolani
-        </div>
-      </a>
-      <a class="contact-link" href="https://linkedin.com/in/lorenzocingolani" target="_blank">
-        <span class="contact-link-icon">in</span>
-        <div>
-          <span class="contact-link-label">LinkedIn</span>
-          lorenzocingolani
-        </div>
-      </a>
-      <div class="contact-link" style="cursor:default">
-        <span class="contact-link-icon">◎</span>
-        <div>
-          <span class="contact-link-label">Location</span>
-          London, W5 · UK
-        </div>
+      <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#impact">Impact</a>
+        <a href="#experience">Experience</a>
+        <a href="#skills">Skills</a>
+        <a href="#education">Education</a>
+        <a href="#contact">Contact</a>
       </div>
     </div>
-  </div>
-</section>
+  </nav>
 
-<!-- Marquee bottom -->
-<div id="marquee" style="padding:0; overflow:hidden; background: var(--gold);">
-  <div class="marquee-track" id="marquee-track2"></div>
-</div>
+  <header class="hero" id="home">
+    <div class="container hero-grid">
+      <div class="panel hero-card reveal">
+        <div class="kicker">● Global Markets • Execution Strategy • Trading Analytics</div>
+        <h1>
+          Turning <span class="gradient-text">alpha</span> into
+          precise execution.
+        </h1>
+        <p class="lead">
+          I’m Lorenzo Cingolani, a London-based trader and execution strategist with deep experience across
+          futures, options, FX, rates, and multi-asset workflows. I combine market intuition, execution discipline,
+          and data-driven analytics to reduce slippage, protect alpha, and improve how ideas reach the market.
+        </p>
+        <div class="hero-actions">
+          <a class="cta" href="mailto:lorenzoc2026@gmail.com">Let’s Talk</a>
+          <a class="ghost" href="#experience">View Experience</a>
+        </div>
+        <div class="quick-meta">
+          <span class="chip">London, United Kingdom</span>
+          <span class="chip">British & Italian</span>
+          <span class="chip">Python • SQL • TCA • EMS/OMS</span>
+          <span class="chip">Discretionary Macro + Systematic Execution</span>
+        </div>
+      </div>
 
-<!-- Footer -->
-<footer>
-  <div class="footer-name">Lorenzo Cingolani · London</div>
-  <div class="footer-note">Senior Trader · MSc Big Data Science · British &amp; Italian</div>
-</footer>
+      <aside class="panel profile-card reveal floating">
+        <div class="profile-top">
+          <p class="profile-title">Execution-led market operator</p>
+          <p class="profile-sub">
+            Bridging discretionary macro, execution technology, broker liquidity, and post-trade analytics to deliver cleaner, smarter, more resilient trading outcomes.
+          </p>
+          <div class="accent-line"></div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat">
+            <p class="num" data-counter="19">0</p>
+            <p class="label">Years across listed derivatives, FX, and execution-led market roles</p>
+          </div>
+          <div class="stat">
+            <p class="num" data-counter="3">0</p>
+            <p class="label">Core institutions across sell-side and buy-side trading experience</p>
+          </div>
+          <div class="stat">
+            <p class="num" data-counter="2">0</p>
+            <p class="label">Degrees spanning Financial Economics and Big Data Science</p>
+          </div>
+          <div class="stat">
+            <p class="num" data-counter="100">0</p>
+            <p class="label">Execution mindset: best execution, confidentiality, and continuous improvement</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </header>
 
-<!-- Market Bar -->
-<div id="market-bar" aria-hidden="true" id="market-bar"></div>
+  <main>
+    <section id="about">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <h2>What I bring</h2>
+            <p>Execution expertise shaped by real market flow, transaction cost analysis, liquidity judgment, and technology-driven process improvement.</p>
+          </div>
+        </div>
+        <div class="cards-3">
+          <article class="card reveal">
+            <div class="card-icon">⚡</div>
+            <h3>Execution under pressure</h3>
+            <p>Multi-asset execution across futures, options, FX, rates, and derivatives with an emphasis on timing, liquidity access, slippage control, and confidentiality.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon">📊</div>
+            <h3>Analytics that change behavior</h3>
+            <p>Built reporting and post-trade analysis workflows using Python, SQL, and TCA methods to identify cost drivers, compare broker performance, and improve execution quality.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon">🧠</div>
+            <h3>Human judgment + systematic thinking</h3>
+            <p>Comfortable working with portfolio managers, quants, and developers to translate macro views and trading signals into executable, risk-aware market action.</p>
+          </article>
+        </div>
+      </div>
+    </section>
 
-<script>
-  // ─── Cursor ───
-  const cursor = document.getElementById('cursor');
-  const ring = document.getElementById('cursor-ring');
-  let mx = 0, my = 0, rx = 0, ry = 0;
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-  function animCursor() {
-    cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
-    rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
-    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-    requestAnimationFrame(animCursor);
-  }
-  animCursor();
+    <section id="impact">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <h2>Execution impact</h2>
+            <p>A profile built around preserving alpha, refining algorithms, and making execution more measurable, transparent, and scalable.</p>
+          </div>
+        </div>
+        <div class="cards-3">
+          <article class="card reveal">
+            <div class="card-icon">🎯</div>
+            <h3>Alpha preservation</h3>
+            <p>Focused on reducing market impact and implementation shortfall by matching execution style to liquidity, volatility, and information sensitivity.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon">🔌</div>
+            <h3>Infrastructure mindset</h3>
+            <p>Contributed to EMS and OMS integration, FIX connectivity enhancements, routing logic improvements, and execution controls supporting a stronger trading stack.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon">🤝</div>
+            <h3>Broker & venue edge</h3>
+            <p>Developed sell-side relationships and venue awareness to improve price discovery, source liquidity intelligently, and maintain high execution standards.</p>
+          </article>
+        </div>
+      </div>
+    </section>
 
-  // ─── Live Clock ───
-  function updateClock() {
-    const now = new Date();
-    const str = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Europe/London' });
-    document.getElementById('live-clock').textContent = 'London · ' + str;
-  }
-  updateClock();
-  setInterval(updateClock, 1000);
+    <section id="experience">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <h2>Experience</h2>
+            <p>Selected roles across buy-side and sell-side environments, with a clear thread: execution quality, market understanding, and operational improvement.</p>
+          </div>
+        </div>
 
-  // ─── Ticker ───
-  const tickerItems = [
-    'Multi-Asset Execution', 'FX & Rates Futures', 'TCA Analytics',
-    'Execution Algorithms', 'Smart Order Routing', 'Market Microstructure',
-    'Python & SQL', 'Bloomberg EMSX', 'FIX Protocol', 'EMS/OMS Integration',
-    'Slippage Analysis', 'OTC Derivatives', 'PGIM Wadhwani', 'Man Group AHL',
-    'Banca IMI', 'Systematic Trading', 'Markov Chains', 'q/kdb', 'Power BI'
-  ];
-  const track = document.getElementById('ticker-track');
-  const doubled = [...tickerItems, ...tickerItems];
-  track.innerHTML = doubled.map(t => `<span class="ticker-item">${t}</span>`).join('');
+        <div class="experience-wrap reveal">
+          <div class="timeline-nav panel">
+            <button class="job-btn active" data-job="job1">
+              Professional Break / Personal Projects
+              <small>2024 – Present</small>
+            </button>
+            <button class="job-btn" data-job="job2">
+              Senior Trader — PGIM Wadhwani
+              <small>2012 – 2024</small>
+            </button>
+            <button class="job-btn" data-job="job3">
+              Trader — AHL / Man Group
+              <small>2010 – 2012</small>
+            </button>
+            <button class="job-btn" data-job="job4">
+              F&O Sales Trader — Banca IMI
+              <small>2005 – 2010</small>
+            </button>
+          </div>
 
-  // ─── Marquee ───
-  const marqueeTexts = ['Best Execution', 'Alpha Preservation', 'Quant Research', 'Trading Technology', 'Market Microstructure', 'London Markets'];
-  ['marquee-track', 'marquee-track2'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const content = [...marqueeTexts, ...marqueeTexts].map(t => `<span class="marquee-item">${t}<span>✦</span></span>`).join('');
-    el.innerHTML = content;
-  });
+          <div class="panel" style="padding:0; background:transparent; border:none; box-shadow:none;">
+            <article class="job-panel active" id="job1">
+              <h3>Professional Break / Personal Projects</h3>
+              <div class="job-meta">
+                <span>Jan 2024 – Present</span>
+                <span>International travel</span>
+                <span>Systematic trading research</span>
+              </div>
+              <ul>
+                <li>Used a planned career break to focus on travel, reflection, and long-term professional reset.</li>
+                <li>Designed and implemented a systematic trading and execution framework in Python for research, testing, and signal-driven workflow development.</li>
+                <li>Worked on signal generation, execution logic, and broker API order-routing concepts with a practical, implementation-focused mindset.</li>
+              </ul>
+            </article>
 
-  // ─── Scroll Reveal ───
-  const reveals = document.querySelectorAll('.reveal');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.15 });
-  reveals.forEach(el => observer.observe(el));
+            <article class="job-panel" id="job2">
+              <h3>Senior Trader — PGIM Wadhwani</h3>
+              <div class="job-meta">
+                <span>Apr 2012 – Dec 2024</span>
+                <span>Discretionary macro</span>
+                <span>Multi-asset execution</span>
+              </div>
+              <ul>
+                <li>Worked closely with portfolio managers and Dr. Sushil Wadhwani to translate alpha signals into executable trades across markets and venues.</li>
+                <li>Executed FX, rates, and equity index futures with a focus on timing, confidentiality, liquidity selection, and slippage minimization.</li>
+                <li>Partnered with quant researchers and developers on execution algorithm design, calibration, and live monitoring.</li>
+                <li>Refined smart order routing logic to adapt to liquidity changes and venue microstructure.</li>
+                <li>Produced TCA, broker ranking, and slippage analysis for senior management and investment committee reporting using SQL and Python.</li>
+                <li>Strengthened broker relationships to improve execution quality and access to liquidity while protecting information sensitivity.</li>
+              </ul>
+            </article>
 
-  // ─── Skill Bars ───
-  const barObserver = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.querySelectorAll('.skill-bar-fill').forEach(bar => {
-          bar.style.width = bar.dataset.width + '%';
-        });
+            <article class="job-panel" id="job3">
+              <h3>Trader — AHL, part of Man Group</h3>
+              <div class="job-meta">
+                <span>Oct 2010 – Mar 2012</span>
+                <span>Derivatives & FX</span>
+                <span>Execution research feedback</span>
+              </div>
+              <ul>
+                <li>Executed derivatives and FX transactions with a constant focus on minimizing slippage, market impact, and execution risk.</li>
+                <li>Worked closely with the algo research team, feeding back market observations and anomalies to improve algorithm performance.</li>
+                <li>Compared human trader outcomes against automated execution processes to support performance improvement and lower operational risk.</li>
+                <li>Managed traded months, curve rolls, and netting opportunities while monitoring liquidity and intraday volatility.</li>
+              </ul>
+            </article>
+
+            <article class="job-panel" id="job4">
+              <h3>Futures & Options Sales Trader — Banca IMI Intesa Sanpaolo</h3>
+              <div class="job-meta">
+                <span>Jan 2005 – Aug 2010</span>
+                <span>Sell-side</span>
+                <span>Client execution & advisory</span>
+              </div>
+              <ul>
+                <li>Provided execution and advisory support in listed derivatives for major European asset managers and high-net-worth clients.</li>
+                <li>Handled price discovery for large and complex trades through interaction with market makers.</li>
+                <li>Maintained constant dialogue with proprietary traders and portfolio managers on market moves, flow, and trade ideas.</li>
+                <li>Supported client relationships, service quality, and coordination with clearing and back-office teams.</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <h2>Skills & toolkit</h2>
+            <p>A blend of market execution, quantitative analysis, trading technology, and stakeholder communication.</p>
+          </div>
+        </div>
+
+        <div class="skills-board">
+          <div class="panel skill-groups reveal" style="padding:1rem;">
+            <div class="skill-box">
+              <h3>Execution & markets</h3>
+              <div class="tags">
+                <span class="tag">Best Execution</span>
+                <span class="tag">FX</span>
+                <span class="tag">Rates</span>
+                <span class="tag">Futures</span>
+                <span class="tag">Options</span>
+                <span class="tag">OTC Derivatives</span>
+                <span class="tag">Order Book Analysis</span>
+                <span class="tag">Market Microstructure</span>
+                <span class="tag">Liquidity Sourcing</span>
+              </div>
+            </div>
+            <div class="skill-box">
+              <h3>Analytics & programming</h3>
+              <div class="tags">
+                <span class="tag">Python</span>
+                <span class="tag">Pandas</span>
+                <span class="tag">NumPy</span>
+                <span class="tag">scikit-learn</span>
+                <span class="tag">SQL</span>
+                <span class="tag">Power BI</span>
+                <span class="tag">Advanced Excel</span>
+                <span class="tag">q/kdb basics</span>
+              </div>
+            </div>
+            <div class="skill-box">
+              <h3>Platforms & connectivity</h3>
+              <div class="tags">
+                <span class="tag">Bloomberg EMSX</span>
+                <span class="tag">FXGO</span>
+                <span class="tag">TradeWeb</span>
+                <span class="tag">MarketAxess</span>
+                <span class="tag">Trading Technologies</span>
+                <span class="tag">Charles River</span>
+                <span class="tag">FIX Protocol</span>
+                <span class="tag">EMS/OMS Integration</span>
+              </div>
+            </div>
+            <div class="skill-box">
+              <h3>Collaboration & leadership</h3>
+              <div class="tags">
+                <span class="tag">Portfolio Managers</span>
+                <span class="tag">Researchers</span>
+                <span class="tag">Developers</span>
+                <span class="tag">Broker Management</span>
+                <span class="tag">Client Communication</span>
+                <span class="tag">Senior Reporting</span>
+                <span class="tag">Investment Committee Reporting</span>
+              </div>
+            </div>
+          </div>
+
+          <aside class="highlight-card reveal">
+            <h3>Execution profile snapshot</h3>
+            <p>
+              The strongest thread in my work is simple: build a repeatable edge around execution quality.
+              That means understanding market structure, aligning with portfolio intent, measuring outcomes,
+              and iterating relentlessly.
+            </p>
+            <div class="meter">
+              <div class="meter-row">
+                <span><b>Execution Strategy</b><b>95%</b></span>
+                <div class="bar"><i data-width="95%"></i></div>
+              </div>
+              <div class="meter-row">
+                <span><b>TCA & Post-Trade Analytics</b><b>92%</b></span>
+                <div class="bar"><i data-width="92%"></i></div>
+              </div>
+              <div class="meter-row">
+                <span><b>Market Microstructure</b><b>90%</b></span>
+                <div class="bar"><i data-width="90%"></i></div>
+              </div>
+              <div class="meter-row">
+                <span><b>Python & Data Workflows</b><b>86%</b></span>
+                <div class="bar"><i data-width="86%"></i></div>
+              </div>
+              <div class="meter-row">
+                <span><b>Stakeholder Communication</b><b>93%</b></span>
+                <div class="bar"><i data-width="93%"></i></div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="education">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <h2>Education & credentials</h2>
+            <p>Academic training in economics and data science, reinforced by market-facing and technical certifications.</p>
+          </div>
+        </div>
+        <div class="edu-grid">
+          <article class="card reveal">
+            <div class="card-icon">🎓</div>
+            <h3>MSc in Big Data Science</h3>
+            <p>Queen Mary University of London<br/>Thesis: <em>Systematic Trading With Markov Chains</em></p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon">📘</div>
+            <h3>BSc in Financial Economics</h3>
+            <p>University of London — Birkbeck College<br/>Thesis: <em>Purchasing Power Parity: an Empirical Insight</em></p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon">✅</div>
+            <h3>Professional certifications</h3>
+            <p>Securities Institute units in Financial Regulations, Securities, and Derivatives, plus FCA Client Dealing and Eurex Trader Exam.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card-icon">🧩</div>
+            <h3>Additional learning</h3>
+            <p>Machine learning mathematics with Python, blockchain and cryptoassets, and q/kdb foundations via Coursera, Imperial, INSEAD, and KX Academy.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="container">
+        <div class="footer-card reveal">
+          <div>
+            <h3>Open to the right conversation.</h3>
+            <p>
+              Whether the topic is execution leadership, trading infrastructure, market microstructure, or quantitative
+              workflow design, I’m always interested in meaningful opportunities and thoughtful market discussions.
+            </p>
+          </div>
+          <div style="display:flex; gap:.8rem; flex-wrap:wrap;">
+            <a class="cta" href="mailto:lorenzoc2026@gmail.com">Email Me</a>
+            <a class="ghost" href="tel:+447766550788">Call</a>
+          </div>
+        </div>
+        <p class="mini">© <span id="year"></span> Lorenzo Cingolani — Designed as a one-page GitHub Pages portfolio.</p>
+      </div>
+    </section>
+  </main>
+
+  <button class="top-btn" id="topBtn" aria-label="Back to top">↑</button>
+
+  <script>
+    const yearEl = document.getElementById('year');
+    yearEl.textContent = new Date().getFullYear();
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('visible');
+
+          if(entry.target.querySelectorAll('[data-width]').length){
+            entry.target.querySelectorAll('[data-width]').forEach(el => {
+              el.style.width = el.dataset.width;
+            });
+          }
+        }
+      })
+    }, {threshold: 0.12});
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    const counters = document.querySelectorAll('[data-counter]');
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(!entry.isIntersecting) return;
+        const el = entry.target;
+        const target = +el.dataset.counter;
+        let start = 0;
+        const duration = 1400;
+        const startTime = performance.now();
+
+        function animate(now){
+          const progress = Math.min((now - startTime) / duration, 1);
+          const value = Math.floor(progress * (target - start) + start);
+          el.textContent = value + (target === 100 ? '%' : '+');
+          if(progress < 1) requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+        counterObserver.unobserve(el);
+      });
+    }, {threshold: 0.5});
+
+    counters.forEach(el => counterObserver.observe(el));
+
+    const jobButtons = document.querySelectorAll('.job-btn');
+    const jobPanels = document.querySelectorAll('.job-panel');
+
+    jobButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        jobButtons.forEach(b => b.classList.remove('active'));
+        jobPanels.forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.job).classList.add('active');
+      });
+    });
+
+    const topBtn = document.getElementById('topBtn');
+    window.addEventListener('scroll', () => {
+      topBtn.classList.toggle('show', window.scrollY > 500);
+    });
+    topBtn.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let w, h, dpr;
+
+    function resize(){
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = canvas.width = innerWidth * dpr;
+      h = canvas.height = innerHeight * dpr;
+      canvas.style.width = innerWidth + 'px';
+      canvas.style.height = innerHeight + 'px';
+      particles = Array.from({length: innerWidth < 700 ? 30 : 60}, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 2.4 * dpr + .6,
+        vx: (Math.random() - .5) * .2 * dpr,
+        vy: (Math.random() - .5) * .2 * dpr
+      }));
+    }
+
+    function draw(){
+      ctx.clearRect(0,0,w,h);
+      for(let i=0;i<particles.length;i++){
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.x < 0 || p.x > w) p.vx *= -1;
+        if(p.y < 0 || p.y > h) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(160,190,255,0.55)';
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fill();
+
+        for(let j=i+1;j<particles.length;j++){
+          const q = particles[j];
+          const dx = p.x - q.x;
+          const dy = p.y - q.y;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          const max = 170 * dpr;
+          if(dist < max){
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(140,180,255,${(1 - dist/max) * 0.18})`;
+            ctx.lineWidth = 1;
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.stroke();
+          }
+        }
       }
-    });
-  }, { threshold: 0.3 });
-  document.querySelectorAll('.skill-category').forEach(el => barObserver.observe(el));
+      requestAnimationFrame(draw);
+    }
 
-  // ─── Counter Animation ───
-  function animateCounter(el, target) {
-    let start = 0;
-    const dur = 1800;
-    const step = timestamp => {
-      if (!start) start = timestamp;
-      const progress = Math.min((timestamp - start) / dur, 1);
-      el.textContent = Math.floor(progress * target) + '+';
-      if (progress < 1) requestAnimationFrame(step);
-      else el.textContent = target + '+';
-    };
-    requestAnimationFrame(step);
-  }
-  const counterObserver = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.querySelectorAll('[data-target]').forEach(el => {
-          animateCounter(el, +el.dataset.target);
-        });
-        counterObserver.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.5 });
-  counterObserver.observe(document.getElementById('hero'));
-
-  // ─── Exp Toggle ───
-  function toggleExp(el) {
-    const wasActive = el.classList.contains('active');
-    document.querySelectorAll('.exp-item').forEach(i => i.classList.remove('active'));
-    if (!wasActive) el.classList.add('active');
-  }
-
-  // ─── TOC Active ───
-  const sections = document.querySelectorAll('section[id]');
-  const tocDots = document.querySelectorAll('.toc-dot');
-  const tocObserver = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        tocDots.forEach(d => d.classList.toggle('active', d.dataset.section === e.target.id));
-      }
-    });
-  }, { rootMargin: '-40% 0px -40% 0px' });
-  sections.forEach(s => tocObserver.observe(s));
-
-  // ─── Simulated Market Bar ───
-  const markets = [
-    { name: 'EUR/USD', base: 1.0842 },
-    { name: 'GBP/USD', base: 1.2731 },
-    { name: 'ES1!', base: 5287.5 },
-    { name: 'ZN1!', base: 110.234 },
-    { name: 'CL1!', base: 83.41 },
-    { name: 'GC1!', base: 2331.2 },
-    { name: 'VIX', base: 14.22 },
-  ];
-  function randChange(base) {
-    return (Math.random() - 0.48) * base * 0.002;
-  }
-  let prices = markets.map(m => ({ ...m, val: m.base, chg: 0 }));
-  function renderMarket() {
-    prices = prices.map(m => {
-      const delta = randChange(m.base);
-      return { ...m, val: m.val + delta, chg: m.chg + delta };
-    });
-    document.getElementById('market-bar').innerHTML = prices.map(m => {
-      const pct = ((m.chg / m.base) * 100).toFixed(2);
-      const cls = m.chg >= 0 ? 'up' : 'down';
-      const arrow = m.chg >= 0 ? '▲' : '▼';
-      return `<div class="market-item">
-        <span class="market-name">${m.name}</span>
-        <span class="market-val">${m.val.toFixed(m.base > 100 ? 2 : 4)}</span>
-        <span class="market-change ${cls}">${arrow} ${Math.abs(pct)}%</span>
-      </div>`;
-    }).join('');
-  }
-  renderMarket();
-  setInterval(renderMarket, 2500);
-
-  // ─── Parallax on hero ───
-  window.addEventListener('scroll', () => {
-    const y = window.scrollY;
-    const hero = document.getElementById('hero');
-    if (hero) hero.style.backgroundPositionY = (y * 0.3) + 'px';
-  });
-</script>
+    resize();
+    draw();
+    addEventListener('resize', resize);
+  </script>
 </body>
 </html>
